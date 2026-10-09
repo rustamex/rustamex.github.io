@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio — Street Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Karla:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #f0eeeb;
+    --bg2: #e8e5e1;
+    --text: #2a2825;
+    --text-muted: #8a8680;
+    --accent: #b5a99a;
+    --line: #d4d0cb;
+    --white: #faf9f7;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Karla', sans-serif;
+    font-weight: 300;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--text);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 32px; height: 32px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s ease, width 0.3s, height 0.3s, opacity 0.3s;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring.expand { width: 56px; height: 56px; opacity: 0.5; }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 28px 52px;
+    z-index: 100;
+    mix-blend-mode: multiply;
+  }
+  .nav-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 36px; list-style: none; }
+  .nav-links a {
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0;
+    opacity: 0;
+    animation: fadeUp 1.2s ease 0.2s forwards;
+  }
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0 52px 72px;
+  }
+  .hero-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.8rem, 6vw, 7rem);
+    font-weight: 300;
+    line-height: 1.0;
+    letter-spacing: -0.01em;
+    margin-bottom: 36px;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--text-muted);
+  }
+  .hero-desc {
+    font-size: 0.85rem;
+    line-height: 1.9;
+    color: var(--text-muted);
+    max-width: 320px;
+    border-left: 1px solid var(--line);
+    padding-left: 20px;
+  }
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+    background: var(--bg2);
+  }
+  .hero-img-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(145deg, #d8d4ce 0%, #c8c3bc 50%, #b8b2aa 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-img-placeholder::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600'%3E%3Crect width='400' height='600' fill='none'/%3E%3Ccircle cx='200' cy='240' r='80' fill='%23a8a39b' opacity='0.3'/%3E%3Crect x='80' y='360' width='240' height='3' fill='%23a8a39b' opacity='0.2'/%3E%3Crect x='120' y='380' width='160' height='2' fill='%23a8a39b' opacity='0.15'/%3E%3C/svg%3E") center/cover;
+  }
+  .hero-img-caption {
+    position: absolute;
+    bottom: 28px; right: 28px;
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+  }
+  .hero-scroll {
+    position: absolute;
+    bottom: 72px; left: 52px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .hero-scroll::before {
+    content: '';
+    display: block;
+    width: 40px; height: 1px;
+    background: var(--accent);
+    animation: lineExpand 1.5s ease 1.5s both;
+  }
+
+  /* Section shared */
+  section { padding: 120px 52px; }
+  .section-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 60px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1; height: 1px; background: var(--line);
+  }
+
+  /* Gallery */
+  #work { background: var(--bg); }
+  .gallery-filter {
+    display: flex; gap: 0;
+    margin-bottom: 56px;
+    border-bottom: 1px solid var(--line);
+  }
+  .filter-btn {
+    background: none; border: none;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 12px 24px 12px 0;
+    cursor: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+  .filter-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 24px;
+    height: 1px;
+    background: var(--text);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .filter-btn.active { color: var(--text); }
+  .filter-btn.active::after, .filter-btn:hover::after { transform: scaleX(1); }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 80px;
+    gap: 6px;
+  }
+  .photo-card {
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards;
+  }
+  .photo-card:nth-child(1) { grid-column: 1/6; grid-row: 1/5; animation-delay: 0.1s; }
+  .photo-card:nth-child(2) { grid-column: 6/10; grid-row: 1/4; animation-delay: 0.2s; }
+  .photo-card:nth-child(3) { grid-column: 10/13; grid-row: 1/3; animation-delay: 0.25s; }
+  .photo-card:nth-child(4) { grid-column: 6/10; grid-row: 4/7; animation-delay: 0.3s; }
+  .photo-card:nth-child(5) { grid-column: 10/13; grid-row: 3/7; animation-delay: 0.35s; }
+  .photo-card:nth-child(6) { grid-column: 1/4; grid-row: 5/9; animation-delay: 0.4s; }
+  .photo-card:nth-child(7) { grid-column: 4/9; grid-row: 7/10; animation-delay: 0.45s; }
+  .photo-card:nth-child(8) { grid-column: 9/13; grid-row: 7/10; animation-delay: 0.5s; }
+  .photo-card:nth-child(9) { grid-column: 1/4; grid-row: 9/11; animation-delay: 0.55s; }
+
+  .photo-inner {
+    width: 100%; height: 100%;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .photo-card:hover .photo-inner { transform: scale(1.04); }
+
+  /* Photo placeholders with gradients */
+  .ph { width: 100%; height: 100%; }
+  .ph-1 { background: linear-gradient(135deg, #3a3835 0%, #6b6560 40%, #8a8278 100%); } /* bw */
+  .ph-2 { background: linear-gradient(160deg, #c4a882 0%, #8b7355 60%, #5c4a35 100%); } /* warm color */
+  .ph-3 { background: linear-gradient(120deg, #7a8a7a 0%, #4a5a4a 100%); } /* green tone */
+  .ph-4 { background: linear-gradient(150deg, #2e2c2a 0%, #5a5550 100%); } /* dark bw */
+  .ph-5 { background: linear-gradient(140deg, #9ba0a8 0%, #6a7080 100%); } /* blue-grey */
+  .ph-6 { background: linear-gradient(130deg, #d4b896 0%, #a08060 100%); } /* golden */
+  .ph-7 { background: linear-gradient(155deg, #484442 0%, #888075 100%); } /* mid bw */
+  .ph-8 { background: linear-gradient(125deg, #8a6a6a 0%, #5a4040 100%); } /* red tone */
+  .ph-9 { background: linear-gradient(145deg, #b0b4b8 0%, #787c80 100%); } /* silver */
+
+  .photo-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    display: flex; align-items: flex-end;
+    padding: 16px;
+  }
+  .photo-card:hover .photo-overlay { opacity: 1; }
+  .photo-meta {
+    font-size: 0.6rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+  }
+
+  /* About */
+  #about { background: var(--bg2); }
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .about-portrait {
+    aspect-ratio: 3/4;
+    background: linear-gradient(145deg, #c8c3bc, #a8a39b);
+    position: relative;
+    overflow: hidden;
+  }
+  .about-portrait::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; right: -20px;
+    width: 60%; height: 60%;
+    border: 1px solid var(--line);
+    z-index: -1;
+  }
+  .about-content { padding-top: 40px; }
+  .about-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.4rem, 4vw, 4rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 32px;
+  }
+  .about-name em { font-style: italic; color: var(--text-muted); }
+  .about-text {
+    font-size: 0.88rem;
+    line-height: 2;
+    color: var(--text-muted);
+    margin-bottom: 48px;
+  }
+  .about-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    border-top: 1px solid var(--line);
+    padding-top: 32px;
+  }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* Contact */
+  #contact { background: var(--text); color: var(--white); }
+  #contact .section-label { color: var(--accent); }
+  #contact .section-label::after { background: rgba(255,255,255,0.1); }
+  .contact-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+  }
+  .contact-heading {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 5vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.05;
+  }
+  .contact-heading em { font-style: italic; color: var(--accent); }
+  .contact-form { display: flex; flex-direction: column; gap: 0; }
+  .form-group {
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding: 20px 0;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .form-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .form-input, .form-textarea {
+    background: none; border: none; outline: none;
+    font-family: 'Karla', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 300;
+    color: var(--white);
+    width: 100%;
+    cursor: none;
+  }
+  .form-textarea { resize: none; height: 60px; }
+  ::placeholder { color: rgba(255,255,255,0.2); }
+  .submit-btn {
+    margin-top: 36px;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--white);
+    font-family: 'Karla', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 18px 40px;
+    cursor: none;
+    align-self: flex-start;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .submit-btn:hover { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.4); }
+
+  /* Footer */
+  footer {
+    background: var(--text);
+    padding: 28px 52px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-copy {
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.25);
+  }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: rgba(255,255,255,0.7); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes lineExpand {
+    from { width: 0; }
+    to   { width: 40px; }
+  }
+
+  /* Lightbox */
+  .lightbox {
+    position: fixed; inset: 0;
+    background: rgba(20,18,16,0.96);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.4s;
+  }
+  .lightbox.open { opacity: 1; pointer-events: all; }
+  .lightbox-inner { width: 70vmin; height: 80vmin; position: relative; }
+  .lightbox-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border: none;
+  }
+  .lightbox-img-placeholder {
+    width: 100%; height: 100%;
+  }
+  .lightbox-close {
+    position: absolute; top: -40px; right: 0;
+    background: none; border: none;
+    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4); cursor: none;
+    transition: color 0.3s;
+  }
+  .lightbox-close:hover { color: rgba(255,255,255,0.9); }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="#" class="nav-logo">А. Иванов</a>
+  <ul class="nav-links">
+    <li><a href="#work">Работы</a></li>
+    <li><a href="#about">Обо мне</a></li>
+    <li><a href="#contact">Контакт</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-label">Стрит-фотография — Москва</p>
+    <h1 class="hero-title">Город<br>в <em>кадре</em></h1>
+    <p class="hero-desc">Улица как театр. Момент как вечность. Свет, тень и люди в движении — документация живой городской жизни.</p>
+    <div class="hero-scroll">Смотреть работы</div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-img-placeholder ph-1">
+      <!-- место для главного фото -->
+    </div>
+    <span class="hero-img-caption">Москва, 2024</span>
+  </div>
+</section>
+
+<!-- Gallery -->
+<section id="work">
+  <p class="section-label">Избранные работы</p>
+
+  <div class="gallery-filter">
+    <button class="filter-btn active" onclick="setFilter(this,'all')">Все</button>
+    <button class="filter-btn" onclick="setFilter(this,'color')">Цветные</button>
+    <button class="filter-btn" onclick="setFilter(this,'bw')">Чёрно-белые</button>
+  </div>
+
+  <div class="gallery-grid">
+    <div class="photo-card" data-type="bw" onclick="openLightbox(0)">
+      <div class="photo-inner"><div class="ph ph-1"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Б/W · 2024</span></div>
+    </div>
+    <div class="photo-card" data-type="color" onclick="openLightbox(1)">
+      <div class="photo-inner"><div class="ph ph-2"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Color · 2024</span></div>
+    </div>
+    <div class="photo-card" data-type="color" onclick="openLightbox(2)">
+      <div class="photo-inner"><div class="ph ph-3"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Color · 2023</span></div>
+    </div>
+    <div class="photo-card" data-type="bw" onclick="openLightbox(3)">
+      <div class="photo-inner"><div class="ph ph-4"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Б/W · 2024</span></div>
+    </div>
+    <div class="photo-card" data-type="bw" onclick="openLightbox(4)">
+      <div class="photo-inner"><div class="ph ph-5"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Б/W · 2023</span></div>
+    </div>
+    <div class="photo-card" data-type="color" onclick="openLightbox(5)">
+      <div class="photo-inner"><div class="ph ph-6"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Color · 2024</span></div>
+    </div>
+    <div class="photo-card" data-type="bw" onclick="openLightbox(6)">
+      <div class="photo-inner"><div class="ph ph-7"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Б/W · 2024</span></div>
+    </div>
+    <div class="photo-card" data-type="color" onclick="openLightbox(7)">
+      <div class="photo-inner"><div class="ph ph-8"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Color · 2023</span></div>
+    </div>
+    <div class="photo-card" data-type="bw" onclick="openLightbox(8)">
+      <div class="photo-inner"><div class="ph ph-9"></div></div>
+      <div class="photo-overlay"><span class="photo-meta">Б/W · 2024</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <p class="section-label">Обо мне</p>
+  <div class="about-grid">
+    <div class="about-portrait"><!-- место для портрета --></div>
+    <div class="about-content">
+      <h2 class="about-name">Алексей<br><em>Иванов</em></h2>
+      <p class="about-text">
+        Фотограф из Москвы, специализирующийся на уличной документальной съёмке. Снимаю город как живой организм — его ритм, свет и людей в нём. Работаю в цвете и чёрно-белом в зависимости от настроения кадра.
+      </p>
+      <p class="about-text">
+        Убеждён, что лучший кадр — это не постановка, а честный момент, пойманный вовремя. Снимаю плёнку и цифру, предпочитаю доступный свет.
+      </p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-num">8+</div>
+          <div class="stat-label">Лет практики</div>
+        </div>
+        <div>
+          <div class="stat-num">12</div>
+          <div class="stat-label">Городов</div>
+        </div>
+        <div>
+          <div class="stat-num">3</div>
+          <div class="stat-label">Выставки</div>
+        </div>
+        <div>
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Кадров в голове</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <p class="section-label">Связаться</p>
+  <div class="contact-inner">
+    <h2 class="contact-heading">Давайте<br><em>работать</em><br>вместе</h2>
+    <div class="contact-form">
+      <div class="form-group">
+        <label class="form-label">Имя</label>
+        <input class="form-input" type="text" placeholder="Ваше имя">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" placeholder="hello@example.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Сообщение</label>
+        <textarea class="form-textarea" placeholder="Расскажите о вашем проекте…"></textarea>
+      </div>
+      <button class="submit-btn">Отправить</button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <span class="footer-copy">© 2024 Алексей Иванов</span>
+  <div class="footer-links">
+    <a href="#">Instagram</a>
+    <a href="#">500px</a>
+    <a href="#">Behance</a>
+  </div>
+</footer>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <div class="lightbox-inner" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeLightbox()">Закрыть ✕</button>
+    <div class="lightbox-img-placeholder" id="lbImg"></div>
+  </div>
+</div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cursor.style.left = mx+'px'; cursor.style.top = my+'px'; });
+  function animateRing() { rx += (mx-rx)*0.12; ry += (my-ry)*0.12; ring.style.left=rx+'px'; ring.style.top=ry+'px'; requestAnimationFrame(animateRing); }
+  animateRing();
+  document.querySelectorAll('a,button,.photo-card').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('expand'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('expand'));
+  });
+
+  // Filter
+  function setFilter(btn, type) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.photo-card').forEach(card => {
+      const match = type === 'all' || card.dataset.type === type;
+      card.style.opacity = match ? '1' : '0.15';
+      card.style.pointerEvents = match ? 'all' : 'none';
+    });
+  }
+
+  // Lightbox
+  const colors = ['#3a3835','#c4a882','#7a8a7a','#2e2c2a','#9ba0a8','#d4b896','#484442','#8a6a6a','#b0b4b8'];
+  function openLightbox(i) {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lbImg').style.background = `linear-gradient(145deg, ${colors[i]}, ${colors[(i+3)%9]})`;
+    lb.classList.add('open');
+  }
+  function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeLightbox(); });
+</script>
+</body>
+</html>
